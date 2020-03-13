@@ -68,6 +68,7 @@ public class ReadPdf {
         //String pattern = '^.*Person ([\\S\\s])([\\S\\s])([\\S\\s]+)';
         //String pattern = '([CR\\d]+) * Description ([\\S\\s]) Person ([\\S\\s])([\\S\\s]+)';
         String pattern = "([\\S\\s]+) ([\\S\\s]+) ([CR\\d]+) - ([\\d]+) System ([\\S\\s]+)";
+        //String pattern = "(?m)^(\\d+:\\d+)\\s(\\w+\\d+).* System (\\w.*)";
         String searchString = "Avslag";
         String rule = "";
         String outcome = "";
@@ -79,16 +80,16 @@ public class ReadPdf {
         for (String line : lines) {
             Matcher m = r.matcher(line);
             if (m.find()) {
-                System.out.println("Found value: " + m.group(0));
-                System.out.println("Found value: " + m.group(1)); //rule
+                //System.out.println("Found value: " + m.group(0));
+                //System.out.println("Found value: " + m.group(1)); //rule
                 //rule1 = m1.group(1).replaceAll("\\s","");
-                System.out.println("Found value: " + m.group(2));
-                System.out.println("Found value: " + m.group(3)); //rule x
+                //System.out.println("Found value: " + m.group(2));
+                //System.out.println("Found value: " + m.group(3)); //rule x
                 rule = m.group(3).replaceAll("\\s", "");
                 rules.add(rule);
-                System.out.println("Found value: " + m.group(4)); //outcome
+                //System.out.println("Found value: " + m.group(4)); //outcome
                 //outcome1 = m1.group(4).replaceAll("\\s","")
-                System.out.println("Found value: " + m.group(5)); //outcome x
+                //System.out.println("Found value: " + m.group(5)); //outcome x
                 outcome = m.group(5).replaceAll("\\s", "");
                 rulesOutcomes.put(rule, outcome);
                 if (m.group(5).replaceAll("\\s", "").equals(searchString)) {
@@ -197,7 +198,7 @@ public class ReadPdf {
         //for (String line : lines) {
         Matcher m = r.matcher(strFile);
         if (m.find()) {
-            System.out.println("Found value: " + m.group(0));
+            //System.out.println("Found value: " + m.group(0));
             splitDate = m.group(0);
         }
 
@@ -213,7 +214,7 @@ public class ReadPdf {
 
         //TODO read txt file MyFile3.txt to regex
         String ret = readTxtFile("temp.txt");
-        System.out.println(ret);
+        //System.out.println(ret);
 
         String[] lines = ret.split("(\r\n|\r|\n)", -1);
 
@@ -227,10 +228,10 @@ public class ReadPdf {
             }
         }
 
-        System.out.println("DEBUG space moved ");
+        /*System.out.println("DEBUG space moved ");
         for(String s : spaceMoved){
             System.out.println(s);
-        }
+        }*/
 
         Map<String, String> rulesOutcomes = new HashMap<>();
 
@@ -247,17 +248,23 @@ public class ReadPdf {
         for (String line : spaceMoved) {
             m = r.matcher(line);
             if (m.find()) {
-                System.out.println("Found value: " + m.group(0));
-                System.out.println("Found value: " + m.group(1));
-                System.out.println("Found value: " + m.group(2));
-                System.out.println("Found value: " + m.group(3));
+                //System.out.println("Found value: " + m.group(0));
+                //System.out.println("Found value: " + m.group(1));
+                //System.out.println("Found value: " + m.group(2));
+                //System.out.println("Found value: " + m.group(3));
                 testValues.put(m.group(2),m.group(3));
+                rulesOutcomes.put(m.group(2),m.group(3));
             }
         }
         System.out.println(testValues);
+
+        for (Map.Entry<String,String> entry : rulesOutcomes.entrySet()){
+            //System.out.println("Key = " + entry.getKey() +", Value = " + entry.getValue());
+            ruleList.add(entry.getKey());
+        }
 ////////////////////////////////////////////////////////////////////
 
-        rulePattern = "([\\d:\\d]+)\\s([CR\\d+]+)";
+        /*rulePattern = "([\\d:\\d]+)\\s([CR\\d+]+)";
         // Create a Pattern object
         r = Pattern.compile(rulePattern);
         // Now create matcher object.
@@ -270,9 +277,9 @@ public class ReadPdf {
                 System.out.println("Found value: " + m.group(2));
                 ruleList.add(m.group(2));
             }
-        }
+        }*/
 
-        rulePattern = "Godkänt|Avslag";
+        /*rulePattern = "Godkänt|Avslag";
         // Create a Pattern object
         r = Pattern.compile(rulePattern);
         // Now create matcher object.
@@ -282,11 +289,11 @@ public class ReadPdf {
                 System.out.println("Found value: " + m.group(0));
                 outList.add(m.group(0));
             }
-        }
+        }*/
 
-        for (int i = 0; i < outList.size(); i++){
-            rulesOutcomes.put(ruleList.get(i), outList.get(i));
-        }
+        //for (int i = 0; i < outList.size(); i++){
+        //    rulesOutcomes.put(ruleList.get(i), outList.get(i));
+        //}
 
         //expected values are done by rulelist "Godkänt" if i modulo 2 == 0 else "Avslag"
         int i = 0;
