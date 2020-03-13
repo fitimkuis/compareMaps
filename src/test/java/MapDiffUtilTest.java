@@ -7,6 +7,9 @@ import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -27,6 +30,42 @@ public class MapDiffUtilTest {
 
     @Test
     public void testEqual() {
+
+
+        String one = "strikethrough price: $69.00";
+        String two ="sale price: $50.99";
+
+        String pattern = "([\\d.\\d]+)";
+        List<String> prices = new ArrayList<>();
+        List<String> prices2 = new ArrayList<>();
+        prices.add(one);
+        prices.add(two);
+        // Create a Pattern object
+        Pattern r = Pattern.compile(pattern);
+        // Now create matcher object.
+        for (String line : prices) {
+            Matcher m = r.matcher(line);
+            if (m.find()) {
+                //System.out.println("Found value: " + m.group(0));
+                prices2.add(m.group(0));
+            }
+        }
+        System.out.println(prices2);
+
+        double priceOne = Double.parseDouble(prices2.get(0));
+        double priceTwo = Double.parseDouble(prices2.get(1));
+
+        if (priceOne > priceTwo){
+            System.out.println("Price one is higher than price two");
+        }
+        else if(priceOne == priceTwo){
+            System.out.println("Prices are equals");
+        }
+        else{
+            System.out.println("Price two is higher than price one");
+        }
+
+
         final Map<String, Integer> map1 = new HashMap<String, Integer>();
         map1.put("A", 1);
         map1.put("B", 2);

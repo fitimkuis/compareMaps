@@ -27,8 +27,13 @@ import com.google.common.collect.MapDifference.*;
 
 public class ReadPdf {
 
-    private static final Logger log =
-            LoggerFactory.getLogger(MapDiffUtil.class);
+    static List <String> rules = new ArrayList<>();
+
+    static Map<String, String> expectedValues = new HashMap<>();
+
+    static String[] lines;
+
+    private static final Logger log = LoggerFactory.getLogger(MapDiffUtil.class);
 
     //KeywordUtil logger = new KeywordUtil();
 
@@ -49,15 +54,16 @@ public class ReadPdf {
         document.close();
 
         //System.out.println("DEBUG**********"+content);
+        //TODO write to txt file
         writeTxtFile(content);
 
-        String[] lines = text.split("(\r\n|\r|\n)", -1);
+        lines = text.split("(\r\n|\r|\n)", -1);
 
 
         //System.out.println(lines);
 
         //for testing purpose
-        Map<String, String> rules = new HashMap<>();
+        //Map<String, String> rules = new HashMap<>();
 
         //String pattern = '^.*Person ([\\S\\s])([\\S\\s])([\\S\\s]+)';
         //String pattern = '([CR\\d]+) * Description ([\\S\\s]) Person ([\\S\\s])([\\S\\s]+)';
@@ -79,6 +85,7 @@ public class ReadPdf {
                 System.out.println("Found value: " + m.group(2));
                 System.out.println("Found value: " + m.group(3)); //rule x
                 rule = m.group(3).replaceAll("\\s", "");
+                rules.add(rule);
                 System.out.println("Found value: " + m.group(4)); //outcome
                 //outcome1 = m1.group(4).replaceAll("\\s","")
                 System.out.println("Found value: " + m.group(5)); //outcome x
@@ -92,14 +99,10 @@ public class ReadPdf {
             }
         }
 
-        //define map where are expected key and value pair
-        Map<String, String> expectedValues = new HashMap<>();
-        expectedValues.put("CR007", "Godkänt");
-        expectedValues.put("CR008", "Avslag");
-        expectedValues.put("CR051", "Godkänt");
 
-        //TODO remove unwanted lines from the start of file and write to new txt file
-        ReadStringFromFileLineByLine.readLineByLine();
+        //expectedValues.put("CR007", "Godkänt");
+        //expectedValues.put("CR008", "Avslag");
+        //expectedValues.put("CR051", "Godkänt");
 
 
         //compare maps
@@ -109,7 +112,7 @@ public class ReadPdf {
 
     public static void writeTxtFile(List<String> list) throws IOException {
         try {
-            FileWriter writer = new FileWriter("MyFile.txt", true);
+            FileWriter writer = new FileWriter("temp.txt", false);
             for (String s : list) {
                 writer.write(s);
                 writer.write("\r\n");   // write new line
@@ -125,7 +128,7 @@ public class ReadPdf {
         StringBuilder contentBuilder = new StringBuilder();
         try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8))
         {
-            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+            stream.forEach(s -> contentBuilder.append(s).append(" ").append("\n"));
         }
         catch (IOException e)
         {
@@ -134,109 +137,171 @@ public class ReadPdf {
         return contentBuilder.toString();
     }
 
-    public static void main(String[] args) throws IOException {
-        readPdfFile("src/test/Kreditbeslutsfil_500786.pdf");
-        //TODO parse txt file read all to string
-        String strFile = readLineByLineJava8( "MyFile2.txt" );
+    private static String readTxtFile(String filePath)
+    {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath)))
+        {
 
-        //add here unwanted lines
-        String remove1 =  "Skandia106 55 StockholmTelefon: 08 788 10 00skandia.se3";
-        String remove2 = "Skandia106 55 StockholmTelefon: 08 788 10 00skandia.se4";
+            String sCurrentLine;
+            while ((sCurrentLine = br.readLine()) != null)
+            {
+                contentBuilder.append(sCurrentLine).append("\n");
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return contentBuilder.toString();
+    }
+
+    public static String trimTrailingBlanks( String str)
+    {
+        int len = 0;
+        if( str == null)
+            return null;
+        if (!str.equals(" ")) {
+            len = str.length();
+            for (; len > 0; len--) {
+                if (!Character.isWhitespace(str.charAt(len - 1)))
+                    break;
+            }
+        }
+        return str.substring( 0, len);
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        //TODO read pdf file
+        readPdfFile("src/test/Kreditbeslutsfil_500786.pdf");
+
+        //TODO remove unwanted lines from the start of file and write to new txt file
+        String path = ReadStringFromFileLineByLine.readLineByLineRemoveUnwantedLines("temp.txt");
+
+        //TODO parse txt file read all lines to string
+        String strFile = readLineByLineJava8( path );
+
+        //add here which unwanted lines (strings) need to remove
+        String remove1 =  " Skandia 106 55 Stockholm Telefon: 08 788 10 00 skandia.se 3/5Intern SidaKlassificering";
+        String remove2 = " Skandia 106 55 Stockholm Telefon: 08 788 10 00 skandia.se 4/5Intern SidaKlassificering";
         String remove3 = "/5InternSidaKlassificering";
-        String remove4 = "3.2 KreditbeslutDatum Handläggare Kommentar Resultat";
-        String remove5 = "13:12 System AvslagSkandia106 55 StockholmTelefon: 08 788 10 00skandia.se5";
+        String remove4 = " 3.2 Kreditbeslut Datum Handläggare Kommentar Resultat";
+        String remove5 = "13:12 System Avslag Skandia 106 55 Stockholm Telefon: 08 788 10 00 skandia.se 5/5Intern SidaKlassificering";
         String remove6 = "adress - 199003122455";
 
-        String[] splitted = strFile.split("20-03-10");
+        //split file with date
+        String rulePattern = "([\\d-\\d]+)";
+        Pattern r = Pattern.compile(rulePattern);
+        String splitDate = "";
+        //for (String line : lines) {
+        Matcher m = r.matcher(strFile);
+        if (m.find()) {
+            System.out.println("Found value: " + m.group(0));
+            splitDate = m.group(0);
+        }
 
-        FileWriter writer = new FileWriter("MyFile3.txt", true);
+        String[] splitted = strFile.split(splitDate+" ");
+
+        FileWriter writer = new FileWriter("temp.txt", false);
         for (String s: splitted){
             //System.out.println(s.replace("\n", "").replace("\r", "").replace(remove1, "").replace(remove2,"").replace(remove3,"").replace(remove4,"").replace(remove5,"").replace(remove6,""));
             writer.write(s.replace("\n", "").replace("\r", "").replace(remove1, "").replace(remove2,"").replace(remove3,"").replace(remove4,"").replace(remove5,"").replace(remove6,""));
-            writer.write("\r\n");   // write new line
+            writer.write("\n");   // write new line
         }
         writer.close();
 
         //TODO read txt file MyFile3.txt to regex
-    }
-}
-/**
- * Map comparison with detailed log messages
- */
-/*
-class MapDiffUtil {
+        String ret = readTxtFile("temp.txt");
+        System.out.println(ret);
 
-    //private static KeywordUtil logg = new KeywordUtil();
+        String[] lines = ret.split("(\r\n|\r|\n)", -1);
 
-    private static final Logger log =
-            LoggerFactory.getLogger(MapDiffUtil.class);
+        //String[] spaceMoved = {};
+        List <String> spaceMoved = new ArrayList<>();
 
-    public static <K, V> boolean validateEqual(
-            Map<K, V> map1, Map<K, V> map2,
-            String map1Name, String map2Name) {
-
-        final MapDifference<K, V> diff = Maps.difference(map1, map2);
-
-        if (diff.areEqual()) {
-            String error = "Maps "+map1Name+" and "+map2Name+" contain exactly the same name/value pairs";
-            //logg.markWarning(error);
-            log.info("Maps '{}' and '{}' contain exactly the same name/value pairs", map1Name, map2Name);
-            return true;
-
-        } else {
-            logKeys(diff.entriesOnlyOnLeft(), map1Name, map2Name);
-            logKeys(diff.entriesOnlyOnRight(), map2Name, map1Name);
-            logEntries(diff.entriesDiffering(), map1Name, map2Name);
-            return false;
-        }
-    }
-
-    private static <K, V> void logKeys(
-            Map<K, V> mapSubset, String n1, String n2) {
-        if (not(mapSubset.isEmpty())) {
-            //logg.markWarning("Keys found in "+n1+" but not in "+n2+" : "+mapSubset.keySet());
-            log.error("Keys found in {} but not in {}: {}",n1, n2, mapSubset.keySet());
-        }
-    }
-
-    private static <K, V> void logEntries(
-            Map<K, ValueDifference<V>> differing,
-            String n1, String n2) {
-        if (not(differing.isEmpty())) {
-            //logg.markFailed("Differing values found {key="+n1+"-value,"+n2+"-value}: "+differing);
-            log.error("Differing values found {key={}-value,{}-value}: {}",	n1, n2, differing);
-        }
-    }
-
-    private static boolean not(boolean b) {
-        return !b;
-    }
-}
-*/
-/*
-class ReadStringFromFileLineByLine {
-
-    public static void readLineByLine() {
-        try {
-            File file = new File("MyFile.txt");
-            FileReader fileReader = new FileReader(file);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            StringBuffer stringBuffer = new StringBuffer();
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                stringBuffer.append(line);
-                stringBuffer.append("\n");
+        for (String s : lines){
+            String res = trimTrailingBlanks(s);
+            if (!res.equals("")) {
+                spaceMoved.add(res);
             }
-            fileReader.close();
-            System.out.println("Contents of file:");
-            System.out.println(
-                    stringBuffer
-                            .toString()
-                            .trim()
-                            .replaceAll("(?m)(?s)^Beslutsunderlag.*Datum Kreditregel ID Beskrivning Handläggare Kommentar Resultat$", ""));
-            //.replaceAll("Beslutsunderlag(\\s|\\S)*('Datum Kreditregel ID Beskrivning Handläggare Kommentar Resultat')", ""));
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+
+        System.out.println("DEBUG space moved ");
+        for(String s : spaceMoved){
+            System.out.println(s);
+        }
+
+        Map<String, String> rulesOutcomes = new HashMap<>();
+
+        List<String> ruleList = new ArrayList<>();
+        List<String> outList = new ArrayList<>();
+
+ ///////////////////////////////////////////////////////////////////
+        //TODO working one regex
+        Map<String, String> testValues = new HashMap<>();
+        rulePattern = "(?m)^(\\d+:\\d+)\\s(\\w+\\d+).* System (\\w.*)";
+        // Create a Pattern object
+        r = Pattern.compile(rulePattern);
+        // Now create matcher object.
+        for (String line : spaceMoved) {
+            m = r.matcher(line);
+            if (m.find()) {
+                System.out.println("Found value: " + m.group(0));
+                System.out.println("Found value: " + m.group(1));
+                System.out.println("Found value: " + m.group(2));
+                System.out.println("Found value: " + m.group(3));
+                testValues.put(m.group(2),m.group(3));
+            }
+        }
+        System.out.println(testValues);
+////////////////////////////////////////////////////////////////////
+
+        rulePattern = "([\\d:\\d]+)\\s([CR\\d+]+)";
+        // Create a Pattern object
+        r = Pattern.compile(rulePattern);
+        // Now create matcher object.
+        for (String line : spaceMoved) {
+            m = r.matcher(line);
+            if (m.find()) {
+                System.out.println("Found value: " + m.group(0));
+                System.out.println("Found value: " + m.group(1)); //rule
+                //rule1 = m1.group(1).replaceAll("\\s","");
+                System.out.println("Found value: " + m.group(2));
+                ruleList.add(m.group(2));
+            }
+        }
+
+        rulePattern = "Godkänt|Avslag";
+        // Create a Pattern object
+        r = Pattern.compile(rulePattern);
+        // Now create matcher object.
+        for (String line : spaceMoved) {
+            m = r.matcher(line);
+            if (m.find()) {
+                System.out.println("Found value: " + m.group(0));
+                outList.add(m.group(0));
+            }
+        }
+
+        for (int i = 0; i < outList.size(); i++){
+            rulesOutcomes.put(ruleList.get(i), outList.get(i));
+        }
+
+        //expected values are done by rulelist "Godkänt" if i modulo 2 == 0 else "Avslag"
+        int i = 0;
+        for (String ru : ruleList){
+            if (i % 2 == 0) {
+                expectedValues.put(ru, "Godkänt");
+            }
+            else{
+                expectedValues.put(ru, "Avslag");
+            }
+            i++;
+        }
+
+        //compare maps
+        //Assert.assertTrue("Maps should be unequal", MapDiffUtil.validateEqual(rulesOutcomes, expectedValues, "map1", "map2"));
+        Assert.assertFalse("Maps should be unequal", MapDiffUtil.validateEqual(rulesOutcomes, expectedValues, "map1", "map2"));
     }
-}*/
+}

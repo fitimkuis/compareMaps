@@ -1,0 +1,30 @@
+ 
+13:12 CR030 "Internal engagement check (only for Private loan and Mortgage loans)" - 199003122455 System Godkänt 
+13:12 CR077 "Applicant is in Fraud list" - 199003122455 System Godkänt 
+13:12 CR081 Risk för bedrägeri Företag - 199003122455 System Avslag 
+13:12 CR032 Temporary or project based employment System Godkänt 
+13:12 CR007 Skyddad personuppgift - 199003122455 System Godkänt 
+13:12 CR008 - 199003122455 System Godkänt 
+13:12 CR011 'Customer has BOX- adress in big cities' - 199003122455 System Godkänt 
+13:12 CR012 Customer has FACK- System Godkänt  
+13:12 CR013 Customer has Poste restante-address - 199003122455 System Godkänt 
+13:12 CR015 Foreign resident and have at least ONE late- payment - 199003122455 System Godkänt 
+13:12 CR024 Kreditupplysning saknas - 199003122455 System Avslag 
+13:12 CR035 Debt remediation - 199003122455 System Godkänt 
+13:12 CR036 Skuldsaldo UC - 199003122455 System Godkänt 
+13:12 CR047 If customer has lost their Drivers license - 199003122455 System Godkänt 
+13:12 CR048 If customer has lost their Passport - 199003122455 System Godkänt 
+13:12 CR049 If customer has lost their ID document - 199003122455 System Godkänt 
+13:12 CR050 Marital status differs from what the customer has entered in application - 199003122455 System Godkänt 
+13:12 CR051 - 199003122455 System Godkänt 
+13:12 CR071 Skyddad  System Godkänt 
+13:12 CR072 customer is emigrated - 199003122455 System Godkänt 
+13:12 CR073 customer is deceased - 199003122455 System Godkänt 
+13:12 CR074 UC Investigation real - 199003122455 System Godkänt 
+13:12 CR075 UC investigation spec - 199003122455 System Godkänt 
+13:12 CR076 Lost id documents - 199003122455 System Godkänt 
+13:12 CR019 PD för högt System Godkänt 
+13:12 CR028 PD saknas System Avslag 
+13:12 CR041 All applicants have currency SEK System Godkänt 
+13:12 CR052 Kontrollera inkomst - 199003122455 System Godkänt 
+ 
