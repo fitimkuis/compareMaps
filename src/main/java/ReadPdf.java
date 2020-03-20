@@ -1,5 +1,3 @@
-import static com.google.common.collect.MapDifference.ValueDifference;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -19,10 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import com.google.common.collect.MapDifference;
-import com.google.common.collect.Maps;
-import com.google.common.collect.MapDifference.*;
 //import com.kms.katalon.core.util.KeywordUtil;
 
 public class ReadPdf {
@@ -37,7 +31,7 @@ public class ReadPdf {
 
     //KeywordUtil logger = new KeywordUtil();
 
-    public static void readPdfFile(String pdfFilePath) throws IOException {
+    public static String[] readPdfFile(String pdfFilePath) throws IOException {
 
         //String pdfFilePath = System.getProperty("user.dir") + "\\pdfFiles\\Kreditbeslutsfil_500786.pdf";
 
@@ -51,8 +45,55 @@ public class ReadPdf {
             //System.out.println("Text:" + text);
             content.add(text);
         }
+
+        String newLine = System.getProperty("line.separator");
+        String retString = String.join(newLine,text);
+
+        String[] arrLines = retString.split("(\r\n|\r|\n)", -1);
+
+        List<String[]> arr = new ArrayList<>();
+        for (String s: arrLines){
+            arr.add(s.split("\r\n"));
+        }
+
+        List<String> arr2 = new ArrayList<>();
+        for (String s: content){
+            arr2.add(s.replace("\r\n"," "));
+        }
+
+        String cont = arr2.get(0);
+
+
+        String cont1 = cont.replaceAll("\r\n", "  ");
         document.close();
 
+        //testing TODO
+        String pat = "2020";
+        Pattern rr = Pattern.compile(pat);
+        String splitString = "";
+        Matcher mm = rr.matcher(cont);
+        if (mm.find()) {
+            System.out.println("Found value: " + mm.group(0));
+            splitString = mm.group(0);
+        } else {
+            System.out.println("NO MATCH");
+        }
+
+        String[] dateSplitted = arr2.get(0).split(splitString);
+
+        System.out.println(dateSplitted[1]);
+
+        String test = "Produkt LånelöfteSkandia106 55 StockholmTelefon: 08 788 10 00skandia.se1/5InternSidaKlassificering1 KundinformationKunduppgifter huvudlåntagarePersonnummer 199003122455Förnamn Skandia ExtranamnEfternamn MockssonCivilstånd EnsamståendeC/O Adress 123456Gatuadress Lindhagensgatan 86Postnummer 11218Postort StockholmMobilnummer 0796765985E-postadress suvankar1990@gmail.comSysselsättning Fast/TillsvidareanställdArbetsgivare CapgeminiInkomst (från UC) 0Inkomst (Angiven) 50 000Valuta SEKTotalt antal barn i hushålletTotalt antal barn i hushållet, heltid2 KreditriskKreditriskPDSkandia106 55 StockholmTelefon: 08 788 10 00skandia.se2/5InternSidaKlassificeringSkuldkvotBelåningsgrad (sökt belopp inräknat)RiskklassLånelöftesbelopp kreditbeslut baserats på 350 000Överskott/underskott (KALP)3 Beslut3.1 KreditreglerDatum Kreditregel ID Beskrivning Handläggare Kommentar Resultat20-03-10 13:12 CR030\"Internal engagementcheck (only for Privateloan and Mortgageloans)\" - 199003122455System Godkänt20-03-10 13:12 CR077\"Applicant is in Fraudlist\" - 199003122455System Godkänt20-03-10 13:12 CR081Risk för bedrägeriFöretag - 199003122455System Avslag20-03-10 13:12 CR032Temporary or projectbased employmentSystem Godkänt20-03-10 13:12 CR007Skyddad personuppgift -199003122455System Godkänt20-03-10 13:12 CR008 - 199003122455 System Godkänt20-03-10 13:12 CR011'Customer has BOX-adress in big cities' -199003122455System Godkänt20-03-10 13:12 CR012Customer has FACK-System GodkäntSkandia106 55 StockholmTelefon: 08 788 10 00skandia.se3/5InternSidaKlassificeringadress - 19900312245520-03-10 13:12 CR013Customer has Posterestante-address -199003122455System Godkänt20-03-10 13:12 CR015Foreign resident andhave at least ONE late-payment -199003122455System Godkänt20-03-10 13:12 CR024Kreditupplysning saknas- 199003122455System Avslag20-03-10 13:12 CR035Debt remediation -199003122455System Godkänt20-03-10 13:12 CR036Skuldsaldo UC -199003122455System Godkänt20-03-10 13:12 CR047If customer has lost theirDrivers license -199003122455System Godkänt20-03-10 13:12 CR048If customer has lost theirPassport -199003122455System Godkänt20-03-10 13:12 CR049If customer has lost theirID document -199003122455System Godkänt20-03-10 13:12 CR050Marital status differsfrom what the customerhas entered inapplication -199003122455System Godkänt20-03-10 13:12 CR051 - 199003122455 System Godkänt20-03-10 13:12 CR071Skyddad adress -199003122455System GodkäntSkandia106 55 StockholmTelefon: 08 788 10 00skandia.se4/5InternSidaKlassificering20-03-10 13:12 CR072customer is emigrated -199003122455System Godkänt20-03-10 13:12 CR073customer is deceased -199003122455System Godkänt20-03-10 13:12 CR074UC Investigation real -199003122455System Godkänt20-03-10 13:12 CR075UC investigation spec -199003122455System Godkänt20-03-10 13:12 CR076Lost id documents -199003122455System Godkänt20-03-10 13:12 CR019 PD för högt System Godkänt20-03-10 13:12 CR028 PD saknas System Avslag20-03-10 13:12 CR041All applicants havecurrency SEKSystem Godkänt20-03-10 13:12 CR052Kontrollera inkomst -199003122455System Godkänt3.2 KreditbeslutDatum Handläggare Kommentar Resultat20-03-10 13:12 System AvslagSkandia106 55 StockholmTelefon: 08 788 10 00skandia.se5/5InternSidaKlassificering]\n";
+        //test = test.replaceAll("/'\'","");
+        String[] t = test.split("2020");
+
+        String[] splitted = dateSplitted[1].split(splitString);
+
+        return dateSplitted;
+        ///TODO
+
+
+        /*
         //System.out.println("DEBUG**********"+content);
         //TODO write to txt file
         writeTxtFile(content);
@@ -99,6 +140,7 @@ public class ReadPdf {
                 //System.out.println("NO MATCH");
             }
         }
+        */
 
 
         //expectedValues.put("CR007", "Godkänt");
@@ -174,8 +216,41 @@ public class ReadPdf {
 
     public static void main(String[] args) throws IOException {
 
+
+        String number = "1.0";
+        Double doubleNumber = Double.parseDouble(number);
+        System.out.println(doubleNumber);
+        int integer = doubleNumber.intValue();
+
         //TODO read pdf file
-        readPdfFile("src/test/Kreditbeslutsfil_500786.pdf");
+        String[] splittedDate = readPdfFile("src/test/Kreditbeslutsfil_500786.pdf");
+        Map<String, String> rulesOutcomes = new HashMap<>();
+
+        List<String> ruleList = new ArrayList<>();
+        List<String> outList = new ArrayList<>();
+
+        ///////////////////////////////////////////////////////////////////
+        //TODO working one regex
+        Map<String, String> testValues = new HashMap<>();
+        String  rulePattern = "(?m)^(\\d+:\\d+)\\s(\\w+\\d+).* System (\\w.*)";
+        // Create a Pattern object
+        Pattern r = Pattern.compile(rulePattern);
+        Matcher m;
+        // Now create matcher object.
+        for (String line : splittedDate) {
+            m = r.matcher(line);
+            if (m.find()) {
+                //System.out.println("Found value: " + m.group(0));
+                //System.out.println("Found value: " + m.group(1));
+                //System.out.println("Found value: " + m.group(2));
+                //System.out.println("Found value: " + m.group(3));
+                testValues.put(m.group(2),m.group(3));
+                rulesOutcomes.put(m.group(2),m.group(3));
+            }
+        }
+        System.out.println(testValues);
+
+        //TODO testing
 
         //TODO remove unwanted lines from the start of file and write to new txt file
         String path = ReadStringFromFileLineByLine.readLineByLineRemoveUnwantedLines("temp.txt");
@@ -192,11 +267,11 @@ public class ReadPdf {
         String remove6 = "adress - 199003122455";
 
         //split file with date
-        String rulePattern = "([\\d-\\d]+)";
-        Pattern r = Pattern.compile(rulePattern);
+        rulePattern = "([\\d-\\d]+)";
+        r = Pattern.compile(rulePattern);
         String splitDate = "";
         //for (String line : lines) {
-        Matcher m = r.matcher(strFile);
+        m = r.matcher(strFile);
         if (m.find()) {
             //System.out.println("Found value: " + m.group(0));
             splitDate = m.group(0);
@@ -233,14 +308,14 @@ public class ReadPdf {
             System.out.println(s);
         }*/
 
-        Map<String, String> rulesOutcomes = new HashMap<>();
+        //Map<String, String> rulesOutcomes = new HashMap<>();
 
-        List<String> ruleList = new ArrayList<>();
-        List<String> outList = new ArrayList<>();
+        //List<String> ruleList = new ArrayList<>();
+        //List<String> outList = new ArrayList<>();
 
  ///////////////////////////////////////////////////////////////////
         //TODO working one regex
-        Map<String, String> testValues = new HashMap<>();
+        //Map<String, String> testValues = new HashMap<>();
         rulePattern = "(?m)^(\\d+:\\d+)\\s(\\w+\\d+).* System (\\w.*)";
         // Create a Pattern object
         r = Pattern.compile(rulePattern);
