@@ -6,6 +6,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.*;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -99,6 +100,7 @@ public class ReadXML {
                     }
                 }
             }
+
             startTag = Integer.parseInt(tag);
             //TODO print out and calculate
             HashMap<Integer,ArrayList<Integer>> maps2 = new HashMap<Integer, ArrayList<Integer>>();
@@ -108,11 +110,14 @@ public class ReadXML {
             }
             //add maps1 values to maps2 as integer
             startTag = Integer.parseInt(tag);
-            String val = maps1.get("r"+startTag).get(0);
+            //String val = maps1.get("r"+startTag).get(0);
             for (int i = 0; i < nList.getLength(); i++){
 
                 for (int j = 0; j <= tagCounter-1; j++) {
-                    if (maps1.get("r"+startTag).get(i).equals("")) {
+
+                    boolean digits = NumberUtils.isDigits(maps1.get("r" + startTag).get(i));
+
+                    if (maps1.get("r"+startTag).get(i).equals("") || digits == false){
                         maps2.get(startTag).add(0);
                         //maps2.get(startTag).add(Integer.parseInt(maps1.get("r" + startTag).get(0)));
                     }
@@ -125,6 +130,9 @@ public class ReadXML {
                     }
                 }
             }
+
+
+            //System.out.println("node R value: "+maps1.get("R4").get(4));
 
             startTag = Integer.parseInt(tag);
             System.out.println("Node values");
@@ -141,9 +149,12 @@ public class ReadXML {
                     else{
                         nodesSum += 0;
                         tempSum += 0;
+                        System.out.println("node R"+startTag+ " value: "+maps1.get("r"+startTag).get(getCounter));
+
                     }
                     //System.out.println("node R"+startTag+ " sum: "+nodesSum);
                     System.out.println("node R"+startTag+ " value: "+maps2.get(startTag).get(getCounter));
+                    //System.out.println("node R"+startTag+ " value: "+maps1.get(startTag).get(0));
                     if (sumCounter % tagCounter == 0){
                         System.out.println("nodes sum: "+nodesSum);
                         getCounter++;
